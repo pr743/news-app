@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Home from "./components/Home";
 import Latest from "./components/Latest";
@@ -13,18 +13,18 @@ import Technology from "./components/Technology";
 import LoadingBar from "react-top-loading-bar";
 
 const App = () => {
- const [progress, setProgress] = useState(0);
+  const [progress, setProgress] = useState(0);
+
   return (
-    <Router>  
-     <Navbar / >
+    <>
+      <Navbar />
 
       <LoadingBar 
-      color="#24b3e3e0" 
-      progress={progress} 
-      height={3} 
+        color="#24b3e3e0" 
+        progress={progress} 
+        height={3} 
       />
 
-     
       <div className="container mt-5 pt-4">
         <Routes>
           <Route path="/" element={<Home setProgress={setProgress} />} />
@@ -39,7 +39,7 @@ const App = () => {
       </div>
 
       <Footer />
-    </Router>
+    </>
   );
 };
 
