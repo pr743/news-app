@@ -1,0 +1,25 @@
+{
+  "short_name": "NewsApp",
+  "name": "Daily News - Get Your Free Daily Dose of News",
+  "icons": [
+    {
+      "src": "https://i2.wp.com/grin2b.com/wp-content/uploads/2017/01/Grin2B_icon_NEWS.png?fit=675%2C675",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "logo192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "logo512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
