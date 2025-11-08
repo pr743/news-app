@@ -1,7 +1,7 @@
 {
   "name": "news-app",
   "version": "0.1.0",
-  "private": true,
+  "private": true,    
   "homepage": "https://pr743.github.io/news-app",
   "dependencies": {
     "@testing-library/jest-dom": "^6.8.0",
