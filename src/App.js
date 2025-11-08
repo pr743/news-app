@@ -19,22 +19,39 @@ const App = () => {
     <>
       <Navbar />
 
-      <LoadingBar 
-        color="#24b3e3e0" 
-        progress={progress} 
-        height={3} 
-      />
+      <LoadingBar color="#24b3e3e0" progress={progress} height={3} />
 
       <div className="container mt-5 pt-4">
         <Routes>
           <Route path="/" element={<Home setProgress={setProgress} />} />
-          <Route path="/latest" element={<Latest setProgress={setProgress} />} />
-          <Route path="/sports" element={<Sports setProgress={setProgress} />} />
-          <Route path="/business" element={<Business setProgress={setProgress} />} />
-          <Route path="/entertainment" element={<Entertainment setProgress={setProgress} />} />
-          <Route path="/health" element={<Health setProgress={setProgress} />} />
-          <Route path="/science" element={<Science setProgress={setProgress} />} />
-          <Route path="/technology" element={<Technology setProgress={setProgress} />} />
+          <Route
+            path="/latest"
+            element={<Latest setProgress={setProgress} />}
+          />
+          <Route
+            path="/sports"
+            element={<Sports setProgress={setProgress} />}
+          />
+          <Route
+            path="/business"
+            element={<Business setProgress={setProgress} />}
+          />
+          <Route
+            path="/entertainment"
+            element={<Entertainment setProgress={setProgress} />}
+          />
+          <Route
+            path="/health"
+            element={<Health setProgress={setProgress} />}
+          />
+          <Route
+            path="/science"
+            element={<Science setProgress={setProgress} />}
+          />
+          <Route
+            path="/technology"
+            element={<Technology setProgress={setProgress} />}
+          />
         </Routes>
       </div>
 
@@ -44,7 +61,3 @@ const App = () => {
 };
 
 export default App;
-
-
-
-
