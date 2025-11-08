@@ -17,18 +17,32 @@ const News = ({ heading, category, setProgress }) => {
   const [hasMore, setHasMore] = useState(true);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
- 
+  
+  const CORS_PROXY = "https://corsproxy.io/?";
+  const BASE_URL = "https://gnews.io/api/v4/top-headlines";
+  const TOKEN = "29a181df3b53d3c9b92d88e8aaea66da";
+
   const fetchNews = useCallback(
     async (pageNum = 1, append = false) => {
       setLoading(true);
       try {
         setProgress(10);
-        let url = `https://gnews.io/api/v4/top-headlines?token=29a181df3b53d3c9b92d88e8aaea66da&lang=hi&country=in&max=${pageSize}&page=${pageNum}`;
-        if (category) url += `&topic=${category}`;
+
+        let apiUrl = `${BASE_URL}?token=${TOKEN}&lang=hi&country=in&max=${pageSize}&page=${pageNum}`;
+        if (category) apiUrl += `&topic=${category}`;
+
+        
+        const finalUrl =
+          window.location.hostname === "localhost"
+            ? apiUrl
+            : `${CORS_PROXY}${encodeURIComponent(apiUrl)}`;
 
         setProgress(40);
-        const res = await fetch(url);
+        const res = await fetch(finalUrl);
         setProgress(70);
+
+        if (!res.ok) throw new Error(`Error ${res.status}`);
+
         const data = await res.json();
         setProgress(90);
 
@@ -49,7 +63,6 @@ const News = ({ heading, category, setProgress }) => {
     [category, pageSize, setProgress]
   );
 
-  
   const handleScroll = useCallback(() => {
     if (loading || !hasMore) return;
 
@@ -63,13 +76,10 @@ const News = ({ heading, category, setProgress }) => {
     setShowScrollTop(window.scrollY > 300);
   }, [loading, hasMore]);
 
-  
   const loadMore = () => {
-    setPage
-    ((prev) => prev + 1);
+    setPage((prev) => prev + 1);
   };
 
-  
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
@@ -77,31 +87,24 @@ const News = ({ heading, category, setProgress }) => {
     });
   };
 
-  
   useEffect(() => {
     fetchNews(1, false);
   }, [fetchNews]);
 
-  
   useEffect(() => {
-    if (page > 
-      1) {
+    if (page > 1) {
       fetchNews(page, true);
     }
   }, [page, fetchNews]);
 
-  
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
 
-  
   return (
     <div className="container my-4">
-      <h1 className="text-center mb-4">
-        {heading || "Live News Updates"}
-      </h1>
+      <h1 className="text-center mb-4">{heading || "Live News Updates"}</h1>
 
       <div className="row">
         {currentArticles.map((article, index) => (
@@ -153,5 +156,3 @@ const News = ({ heading, category, setProgress }) => {
 };
 
 export default News;
-
-
