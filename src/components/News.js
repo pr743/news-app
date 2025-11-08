@@ -155,4 +155,4 @@ const News = ({ heading, category, setProgress }) => {
   );
 };
 
-export default News;
+export default News;  
