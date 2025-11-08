@@ -1,161 +1,81 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import NewsItem from "./NewsItem";
 import Spinner from "./Spinner";
 
-const truncateText = (text, maxLength) => {
-  if (!text) return "";
-  if (text.length <= maxLength) return text;
-  const lastSpace = text.lastIndexOf(" ", maxLength);
-  return text.slice(0, lastSpace > 0 ? lastSpace : maxLength) + "...";
-};
+const CORS_PROXY = "https://api.allorigins.win/raw?url=";
+const API_KEY = "29a181df3b53d3c9b92d88e8aaea66da";
 
-const News = ({ heading, category, setProgress }) => {
-  const [currentArticles, setCurrentArticles] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
-  const [pageSize] = useState(9);
-  const [hasMore, setHasMore] = useState(true);
-  const [showScrollTop, setShowScrollTop] = useState(false);
+const News = ({ category, setProgress }) => {
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  
-  const CORS_PROXY = "https://corsproxy.io/?";
-  const BASE_URL = "https://gnews.io/api/v4/top-headlines";
-  const TOKEN = "29a181df3b53d3c9b92d88e8aaea66da";
+  const API_URL = `https://gnews.io/api/v4/top-headlines?token=${API_KEY}&lang=hi&country=in&max=9&page=1${
+    category ? `&topic=${category}` : ""
+  }`;
 
-  const fetchNews = useCallback(
-    async (pageNum = 1, append = false) => {
-      setLoading(true);
+  useEffect(() => {
+    async function fetchNews() {
       try {
         setProgress(10);
+        setLoading(true);
+        setError(null);
 
-        let apiUrl = `${BASE_URL}?token=${TOKEN}&lang=hi&country=in&max=${pageSize}&page=${pageNum}`;
-        if (category) apiUrl += `&topic=${category}`;
-
-        
-        const finalUrl =
+       
+        const url =
           window.location.hostname === "localhost"
-            ? apiUrl
-            : `${CORS_PROXY}${encodeURIComponent(apiUrl)}`;
+            ? API_URL
+            : `${CORS_PROXY}${encodeURIComponent(API_URL)}`;
 
         setProgress(40);
-        const res = await fetch(finalUrl);
+        const response = await fetch(url);
         setProgress(70);
 
-        if (!res.ok) throw new Error(`Error ${res.status}`);
+        if (!response.ok) throw new Error(`Error ${response.status}`);
 
-        const data = await res.json();
-        setProgress(90);
+        const data = await response.json();
 
-        const newArticles = data.articles || [];
-        setCurrentArticles((prev) =>
-          append ? [...prev, ...newArticles] : newArticles
-        );
-        setHasMore(newArticles.length > 0);
-        setLoading(false);
+        
+        const articlesData =
+          typeof data === "string" ? JSON.parse(data).articles : data.articles;
+
+        setArticles(articlesData || []);
         setProgress(100);
-      } catch (error) {
-        console.error("Error fetching news:", error);
-        setLoading(false);
-        setHasMore(false);
+      } catch (err) {
+        console.error("Error fetching news:", err);
+        setError("Failed to load news. Please try again later.");
         setProgress(100);
+      } finally {
+        setLoading(false);
       }
-    },
-    [category, pageSize, setProgress]
-  );
-
-  const handleScroll = useCallback(() => {
-    if (loading || !hasMore) return;
-
-    if (
-      window.innerHeight + document.documentElement.scrollTop + 100 >=
-      document.documentElement.offsetHeight
-    ) {
-      loadMore();
     }
 
-    setShowScrollTop(window.scrollY > 300);
-  }, [loading, hasMore]);
+    fetchNews();
+  }, [category, setProgress]);
 
-  const loadMore = () => {
-    setPage((prev) => prev + 1);
-  };
-
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
-
-  useEffect(() => {
-    fetchNews(1, false);
-  }, [fetchNews]);
-
-  useEffect(() => {
-    if (page > 1) {
-      fetchNews(page, true);
-    }
-  }, [page, fetchNews]);
-
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [handleScroll]);
+  if (loading) return <Spinner />;
+  if (error) return <p className="text-center text-danger mt-5">{error}</p>;
 
   return (
-    <div className="container my-4">
-      <h1 className="text-center mb-4">{heading || "Live News Updates"}</h1>
-
+    <div className="news-container">
+      <h2 className="text-center mb-4">📰 Top Headlines</h2>
       <div className="row">
-        {currentArticles.map((article, index) => (
-          <div className="col-md-4 mb-4" key={article.url + index}>
+        {articles.map((article, index) => (
+          <div className="col-md-4 mb-4" key={index}>
             <NewsItem
-              title={truncateText(article.title, 90)}
-              description={truncateText(article.description, 120)}
+              title={article.title}
+              description={article.description}
               imageUrl={article.image || "https://via.placeholder.com/300x200"}
               url={article.url}
-              author={
-                article.source?.name || article.author || "By NewsApp Team"
-              }
+              author={article.source?.name || article.author || "NewsApp Team"}
               publishedAt={article.publishedAt}
               category={category}
             />
           </div>
         ))}
       </div>
-
-      {loading && (
-        <div className="text-center my-3">
-          <Spinner />
-        </div>
-      )}
-
-      {!loading && currentArticles.length === 0 && (
-        <p className="text-center">कोई समाचार उपलब्ध नहीं है।</p>
-      )}
-
-      {showScrollTop && (
-        <button
-          onClick={scrollToTop}
-          className="btn btn-dark position-fixed"
-          style={{
-            bottom: "30px",
-            right: "30px",
-            borderRadius: "50%",
-            width: "50px",
-            height: "50px",
-            zIndex: 1000,
-            boxShadow: "0 3px 10px rgba(0,0,0,0.3)",
-          }}
-        >
-          ↑
-        </button>
-      )}
     </div>
   );
 };
 
 export default News;
-
-
-
